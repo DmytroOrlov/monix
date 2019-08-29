@@ -191,7 +191,7 @@ Update sbt-header to 5.1.0
 Remove comments from .jvmopts
 
 - [PR #833](https://github.com/monix/monix/pull/833):
-Fix build for 2.13.0-M5 by deactivating Mima for it
+Fix build for 2.13.0 by deactivating Mima for it
 
 - [PR #840](https://github.com/monix/monix/pull/840):
 Add adopters list seed

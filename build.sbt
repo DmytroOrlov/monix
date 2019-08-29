@@ -27,8 +27,8 @@ addCommandAlias("ci-jvm-mima", s";ci-jvm ;mimaReportBinaryIssues")
 addCommandAlias("ci-jvm-all",  s";ci-jvm-mima ;unidoc; scalafmtCheck; test:scalafmtCheck; scalafmtSbtCheck")
 addCommandAlias("release",     ";project monix ;+clean ;+package ;+publishSigned")
 
-val catsVersion = "1.6.1"
-val catsEffectVersion = "1.4.0"
+val catsVersion = "2.0.0-RC2"
+val catsEffectVersion = "2.0.0-RC2"
 val catsEffectLawsVersion = catsEffectVersion
 val jcToolsVersion = "2.1.2"
 val reactiveStreamsVersion = "1.0.3"
@@ -67,7 +67,7 @@ lazy val warnUnusedImport = Seq(
 lazy val sharedSettings = warnUnusedImport ++ Seq(
   organization := "io.monix",
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", "2.12.8"),
+  crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0"),
 
   scalacOptions ++= Seq(
     // warnings
@@ -157,8 +157,8 @@ lazy val sharedSettings = warnUnusedImport ++ Seq(
 
   // For working with partially-applied types
   libraryDependencies += {
-    if (scalaVersion.value == "2.13.0-M5")
-      compilerPlugin("org.spire-math" % "kind-projector" % "0.9.9" cross CrossVersion.binary)
+    if (scalaVersion.value == "2.13.0")
+      compilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3")
     else
       compilerPlugin("org.typelevel" % "kind-projector" % "0.10.0" cross CrossVersion.binary)
   },
@@ -201,12 +201,6 @@ lazy val sharedSettings = warnUnusedImport ++ Seq(
   ),
 
   publishMavenStyle := true,
-  publishTo := Some(
-    if (isSnapshot.value)
-      Opts.resolver.sonatypeSnapshots
-    else
-      Opts.resolver.sonatypeStaging
-  ),
 
   isSnapshot := version.value endsWith "SNAPSHOT",
   publishArtifact in Test := false,
@@ -380,6 +374,7 @@ lazy val monix = project.in(file("."))
   .settings(sharedSettings)
   .settings(doNotPublishArtifact)
   .settings(unidocSettings)
+  .settings(inThisBuild(Seq(publishTo := Some("releases" at "https://nexus.com/nexus/content/repositories/releases"))))
 
 lazy val coreJVM = project.in(file("monix/jvm"))
   .configure(profile)
@@ -446,7 +441,7 @@ lazy val evalCommon =
     Seq(
       name := "monix-eval",
 
-      // used to skip a test in 2.13.0-M5, remove when upgrading
+      // used to skip a test in 2.13.0, remove when upgrading
       // from https://stackoverflow.com/a/48518559/4094860
       sourceGenerators in Test += Def.task {
         val file = (sourceManaged in Test).value / "monix" / "eval" / "internal" / "ScalaVersion.scala"
